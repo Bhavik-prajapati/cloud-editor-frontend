@@ -1,16 +1,26 @@
-import React, { useState } from "react";
-import { useDispatch ,useSelector} from "react-redux"; 
-import { signupUser } from "../../features/auth/authSlice"; 
-import e from "cors";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser } from "../../features/auth/authSlice";
+
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Alert,
+  Paper,
+} from "@mui/material";
 
 const SignupForm = () => {
+  const dispatch = useDispatch();
+  const { loading, error, successMessage } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,55 +28,86 @@ const SignupForm = () => {
     });
   };
 
-  // Handle signup click
   const handleSignup = () => {
-    console.log("Signup data:", formData);
-    dispatch(signupUser(formData))
-    
+    dispatch(signupUser(formData));
   };
-  const dispatch=useDispatch();
-  const { loading, error, successMessage } = useSelector((state) => state.auth);
-
-
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Signup Form</h1>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      bgcolor="background.default"
+    >
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          width: 400,
+          bgcolor: "background.paper",
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h4" mb={3} textAlign="center">
+          Sign Up
+        </Typography>
 
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        value={formData.name}
-        onChange={handleChange}
-      />
-      <br /><br />
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {typeof error === "string" ? error : JSON.stringify(error)}
+          </Alert>
+        )}
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
 
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-      />
-      <br /><br />
+        <TextField
+          fullWidth
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          margin="normal"
+          required
+        />
 
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
-      />
-      <br /><br />
+        <TextField
+          fullWidth
+          label="Email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          margin="normal"
+          required
+        />
 
-      <button onClick={handleSignup} disabled={loading}>
-        {loading ? "Signing up..." : "Sign Up"}
-      </button>
+        <TextField
+          fullWidth
+          label="Password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          margin="normal"
+          required
+        />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-    </div>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={handleSignup}
+          disabled={loading}
+          sx={{ mt: 3 }}
+        >
+          {loading ? "Signing up..." : "Sign Up"}
+        </Button>
+      </Paper>
+    </Box>
   );
 };
 
