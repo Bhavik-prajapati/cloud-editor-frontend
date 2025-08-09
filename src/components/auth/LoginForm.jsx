@@ -1,6 +1,15 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
+
+  const dispatch=useDispatch();
+  const navigate = useNavigate();
+
+
+    const { loading, error, successMessage, user } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -14,8 +23,22 @@ const LoginForm = () => {
     });
   };
   const handleLogin = () => {
-    console.log("Login data:", formData);
+    dispatch(loginUser(formData))
+    // navigate("/dashboard");
+
   }
+
+   /* useEffect(() => {
+    if (user) {
+      navigate("/dashboard"); // adjust path as needed
+    }
+  }, [user, navigate]); */
+
+  useEffect(() => {
+  if (user) {
+    navigate("/dashboard");
+  }
+}, [user, navigate]);
 
   return (
     <div style={{ padding: "20px" }}>
