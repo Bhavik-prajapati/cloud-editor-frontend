@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../../features/auth/authSlice";
+import { Link } from "react-router-dom";
 
 import {
   TextField,
@@ -9,7 +10,9 @@ import {
   Typography,
   Alert,
   Paper,
+  Divider,
 } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
@@ -32,27 +35,53 @@ const SignupForm = () => {
     dispatch(signupUser(formData));
   };
 
+  const handleGoogleSignup = () => {
+    console.log("Google signup clicked");
+  };
+
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="background.default"
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        p: 2,
+      }}
     >
       <Paper
         elevation={4}
         sx={{
           p: 4,
-          width: 400,
+          width: "100%",
+          maxWidth: 420,
           bgcolor: "background.paper",
-          borderRadius: 2,
+          borderRadius: 3,
         }}
       >
-        <Typography variant="h4" mb={3} textAlign="center">
-          Sign Up
+        <Typography variant="h4" textAlign="center" mb={3} fontWeight="bold">
+          Create an Account
         </Typography>
 
+        {/* Google Signup Button */}
+        <Button
+          variant="outlined"
+          fullWidth
+          startIcon={<GoogleIcon />}
+          onClick={handleGoogleSignup}
+          sx={{
+            mb: 3,
+            textTransform: "none",
+            borderColor: "grey.400",
+          }}
+        >
+          Sign Up with Google
+        </Button>
+
+        <Divider sx={{ mb: 3 }}>OR</Divider>
+
+        {/* Alerts */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {typeof error === "string" ? error : JSON.stringify(error)}
@@ -106,6 +135,16 @@ const SignupForm = () => {
         >
           {loading ? "Signing up..." : "Sign Up"}
         </Button>
+
+        <Typography
+          variant="body2"
+          sx={{ mt: 2, textAlign: "center" }}
+        >
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
+            Login here
+          </Link>
+        </Typography>
       </Paper>
     </Box>
   );

@@ -1,8 +1,9 @@
-import { Box, TextField, Button, Typography, Alert } from "@mui/material";
+import { Box, TextField, Button, Typography, Alert, Divider } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import GoogleIcon from "@mui/icons-material/Google";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,11 @@ const LoginForm = () => {
     dispatch(loginUser(formData));
   };
 
+  const handleGoogleLogin = () => {
+    // TODO: implement Google login logic here
+    console.log("Google login clicked");
+  };
+
   useEffect(() => {
     if (user) {
       navigate("/dashboard");
@@ -36,43 +42,51 @@ const LoginForm = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "background.default", // dark background from theme
+        bgcolor: "background.default",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: 2,
+        p: 2,
       }}
     >
       <Box
-        maxWidth={400}
+        maxWidth={420}
         width="100%"
         p={4}
         boxShadow={3}
-        borderRadius={2}
-        bgcolor="background.paper" // card background from theme
+        borderRadius={3}
+        bgcolor="background.paper"
       >
-        <Typography variant="h4" mb={3} textAlign="center" color="text.primary">
-          Login Form
+        {/* Title */}
+        <Typography variant="h4" mb={1} textAlign="center" fontWeight="bold"
+        color="white"
+        >
+          Welcome Back
+        </Typography>
+        <Typography variant="body2" mb={3} textAlign="center" color="text.secondary">
+          Sign in to continue to Cloud Editor
         </Typography>
 
+        {/* Error message */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {typeof error === "string" ? error : JSON.stringify(error)}
           </Alert>
         )}
 
+        {/* Email */}
         <TextField
           fullWidth
-          label="Email"
+          label="Email Address"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleChange}
           margin="normal"
           required
-          sx={{ input: { color: "text.primary" } }}
         />
 
+        {/* Password */}
         <TextField
           fullWidth
           label="Password"
@@ -82,19 +96,48 @@ const LoginForm = () => {
           onChange={handleChange}
           margin="normal"
           required
-          sx={{ input: { color: "text.primary" } }}
         />
 
+        {/* Login Button */}
         <Button
           variant="contained"
           color="primary"
           fullWidth
+          size="large"
           onClick={handleLogin}
           disabled={loading}
-          sx={{ mt: 3 }}
+          sx={{ mt: 2, py: 1.2, fontWeight: "bold" }}
         >
           {loading ? "Logging in..." : "Login"}
         </Button>
+
+        {/* Divider */}
+        <Divider sx={{ my: 3 }}>OR</Divider>
+
+        {/* Google Sign In */}
+        <Button
+          variant="outlined"
+          fullWidth
+          size="large"
+          startIcon={<GoogleIcon />}
+          onClick={handleGoogleLogin}
+          sx={{
+            py: 1.2,
+            borderRadius: 2,
+            fontWeight: "bold",
+            textTransform: "none",
+          }}
+        >
+          Sign in with Google
+        </Button>
+
+        {/* Signup Link */}
+        <Typography variant="body2" textAlign="center" color="white" sx={{ mt: 3 }}>
+          Don’t have an account?{" "}
+          <Link to="/signup" style={{ textDecoration: "none", color: "#1976d2", fontWeight: "bold" }}>
+            Sign Up
+          </Link>
+        </Typography>
       </Box>
     </Box>
   );

@@ -52,11 +52,10 @@ const authSlice = createSlice({
         state.successMessage=null
     })
     .addCase(signupUser.fulfilled,(state,action)=>{
-        debugger;
         state.loading=false,
-        state.user=action.payload.data.user;
-        state.token=action.payload.data.token,
-        state.successMessage=action.payload.data.message;
+        state.user=  action.payload || action.payload.data || action.payload.data.user;
+        state.token=  action.payload ||action.payload.data  || action.payload.data.token,
+        state.successMessage=action.payload.message;
         // localStorage.setItem("token",action.payload.data.token);
     })
     .addCase(signupUser.rejected,(state,action)=>{
@@ -73,7 +72,7 @@ const authSlice = createSlice({
         state.loading=false,
         state.user=action.payload.data.user;
         state.token=action.payload.data.token,
-        state.successMessage=action.payload.data.message;
+        state.successMessage=action.payload.message;
         localStorage.setItem("token",action.payload.data.token);
     })
     .addCase(loginUser.rejected,(state,action)=>{
@@ -82,7 +81,5 @@ const authSlice = createSlice({
     })
   }
 });
-
-
 export const {logout}= authSlice.actions;
 export default authSlice.reducer;
