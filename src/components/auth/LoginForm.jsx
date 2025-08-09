@@ -9,7 +9,12 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, user } = useSelector((state) => state.auth);
+  const { loading, error, message, success, status } = useSelector(
+    (state) => state.auth.login
+  );
+
+  console.log(error,"errrrrrrrrr")
+  const user = useSelector((state) => state.auth.user);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -25,6 +30,8 @@ const LoginForm = () => {
 
   const handleLogin = () => {
     dispatch(loginUser(formData));
+      navigate("/dashboard");
+
   };
 
   const handleGoogleLogin = () => {
@@ -33,9 +40,9 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    /* if (user) {
       navigate("/dashboard");
-    }
+    } */
   }, [user, navigate]);
 
   return (
@@ -58,19 +65,45 @@ const LoginForm = () => {
         bgcolor="background.paper"
       >
         {/* Title */}
-        <Typography variant="h4" mb={1} textAlign="center" fontWeight="bold"
-        color="white"
+        <Typography
+          variant="h4"
+          mb={1}
+          textAlign="center"
+          fontWeight="bold"
+          color="white"
         >
           Welcome Back
         </Typography>
-        <Typography variant="body2" mb={3} textAlign="center" color="text.secondary">
+        <Typography
+          variant="body2"
+          mb={3}
+          textAlign="center"
+          color="text.secondary"
+        >
           Sign in to continue to Cloud Editor
         </Typography>
 
-        {/* Error message */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {typeof error === "string" ? error : JSON.stringify(error)}
+
+        
+
+        {/* Validation warning if status is 400 */}
+          {status === 401 && message && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {message}
+          </Alert>
+        )}
+
+      {error && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {error.split(",").map((errMsg, index) => (
+            <div key={index}>{errMsg.trim()}</div>
+          ))}
+        </Alert>
+      )}
+
+        {success && status=== 200 && message && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {message}
           </Alert>
         )}
 
@@ -132,9 +165,17 @@ const LoginForm = () => {
         </Button>
 
         {/* Signup Link */}
-        <Typography variant="body2" textAlign="center" color="white" sx={{ mt: 3 }}>
+        <Typography
+          variant="body2"
+          textAlign="center"
+          color="white"
+          sx={{ mt: 3 }}
+        >
           Don’t have an account?{" "}
-          <Link to="/signup" style={{ textDecoration: "none", color: "#1976d2", fontWeight: "bold" }}>
+          <Link
+            to="/signup"
+            style={{ textDecoration: "none", color: "#1976d2", fontWeight: "bold" }}
+          >
             Sign Up
           </Link>
         </Typography>

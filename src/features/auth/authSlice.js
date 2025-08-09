@@ -8,7 +8,7 @@ export const signupUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_BASE_URL}users/signup`, formData);
-      return response.data; 
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || { error: "Signup failed" });
     }
@@ -20,7 +20,7 @@ export const loginUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_BASE_URL}users/login`, formData);
-      return response.data; 
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || { error: "Login failed" });
     }
@@ -32,54 +32,84 @@ const authSlice = createSlice({
   initialState: {
     user: null,
     token: null,
-    loading: false,
-    error: null,
-    successMessage: null,
+    signup: {
+      loading: false,
+      error: null,
+      message: null,
+      success: false,
+      status: null,
+    },
+    login: {
+      loading: false,
+      error: null,
+      message: null,
+      success: false,
+      status: null,
+    },
   },
-  reducers:{
-    logout:(state)=>{
+  reducers: {
+    logout: (state) => {
       state.user = null;
       state.token = null;
-      state.successMessage = null;
+      state.signup = { loading: false, error: null, message: null, success: false, status: 400 };
+      state.login = { loading: false, error: null, message: null, success: false, status: 400 };
       localStorage.removeItem("token");
     },
   },
-  extraReducers:(builder)=>{
+  extraReducers: (builder) => {
     builder
-    .addCase(signupUser.pending,(state)=>{
-        state.loading=true,
-        state.error=null,
-        state.successMessage=null
-    })
-    .addCase(signupUser.fulfilled,(state,action)=>{
-        state.loading=false,
-        state.user=  action.payload || action.payload.data || action.payload.data.user;
-        state.token=  action.payload ||action.payload.data  || action.payload.data.token,
-        state.successMessage=action.payload.message;
-        // localStorage.setItem("token",action.payload.data.token);
-    })
-    .addCase(signupUser.rejected,(state,action)=>{
-        state.loading=false,
-        state.error = action.payload.data?.message || "Something went wrong.";
-    })
-    .addCase(loginUser.pending,(state)=>{
-        state.loading=true,
-        state.error=null,
-        state.successMessage=null
-    })
-    .addCase(loginUser.fulfilled,(state,action)=>{
-        debugger;
-        state.loading=false,
-        state.user=action.payload.data.user;
-        state.token=action.payload.data.token,
-        state.successMessage=action.payload.message;
-        localStorage.setItem("token",action.payload.data.token);
-    })
-    .addCase(loginUser.rejected,(state,action)=>{
-        state.loading=false,
-        state.error = action.payload.data?.message || "Invalid credentials.";
-    })
-  }
+      // Signup cases
+      .addCase(signupUser.pending, (state) => {
+        state.signup.loading = true;
+        state.signup.error = null;
+        state.signup.message = null;
+        state.signup.success = false;
+        state.signup.status = null;
+      })
+      .addCase(signupUser.fulfilled, (state, action) => {
+        state.signup.loading = false;
+        state.user = action.payload.data?.user || action.payload.user || null;
+        state.token = action.payload.data?.token || action.payload.token || null;
+        state.signup.message = action.payload.message || "Signup successful";
+        state.signup.status = action.payload.status || 200;
+        state.signup.success = action.payload.success || true;
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.signup.loading = false;
+        // state.signup.error = action.payload?.message || "Signup failed";
+        state.signup.message = action.payload.message || "Signup failed";
+        state.signup.status = action.payload.status || 200;
+        state.signup.success = action.payload.success || true;
+        state.signup.error=action.payload.error;
+
+      })
+
+      // Login cases
+      .addCase(loginUser.pending, (state) => {
+        state.login.loading = true;
+        state.login.error = null;
+        state.login.message = null;
+        state.login.success = false;
+        state.login.status = 400;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.login.loading = false;
+        state.user = action.payload.data?.user || null;
+        state.token = action.payload.data?.token || null;
+        state.login.message = action.payload.message || "Login successful";
+        state.login.status = action.payload.status || 200;
+        state.login.success = action.payload.success || false;
+        localStorage.setItem("token", state.token);
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.login.loading = false;
+        state.login.success = false;
+        state.login.message = action.payload.message || "Login failed";
+        state.login.status = action.payload.status || 400;
+        state.login.error=action.payload.error;
+      });
+  },
 });
-export const {logout}= authSlice.actions;
+
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../../features/auth/authSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   TextField,
@@ -16,7 +16,15 @@ import GoogleIcon from "@mui/icons-material/Google";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
-  const { loading, error, successMessage } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const { loading, error, message, success, status } = useSelector(
+    (state) => state.auth.signup
+  );
+
+  console.log(success)
+  console.log(status)
+  console.log(message)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,6 +46,17 @@ const SignupForm = () => {
   const handleGoogleSignup = () => {
     console.log("Google signup clicked");
   };
+
+  // Optionally redirect on success (if you want)
+  // For example redirect to login page after successful signup
+  // or you can show a success message here and ask user to login manually
+  /*
+  useEffect(() => {
+    if (success) {
+      navigate("/login");
+    }
+  }, [success, navigate]);
+  */
 
   return (
     <Box
@@ -81,17 +100,26 @@ const SignupForm = () => {
 
         <Divider sx={{ mb: 3 }}>OR</Divider>
 
-        {/* Alerts */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {typeof error === "string" ? error : JSON.stringify(error)}
+        {/* Validation warning if status is 400 */}
+        {status === 400 && message && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {message}
           </Alert>
         )}
-        {successMessage && (
+
+        {success && status=== 200 && message && (
           <Alert severity="success" sx={{ mb: 2 }}>
-            {successMessage}
+            {message}
           </Alert>
         )}
+
+        {error && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {error.split(",").map((errMsg, index) => (
+            <div key={index}>{errMsg.trim()}</div>
+          ))}
+        </Alert>
+      )}
 
         <TextField
           fullWidth
@@ -136,10 +164,7 @@ const SignupForm = () => {
           {loading ? "Signing up..." : "Sign Up"}
         </Button>
 
-        <Typography
-          variant="body2"
-          sx={{ mt: 2, textAlign: "center" }}
-        >
+        <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>
           Already have an account?{" "}
           <Link to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
             Login here
