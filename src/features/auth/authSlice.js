@@ -68,7 +68,7 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.signup.loading = false;
-        state.user = action.payload.data?.user || action.payload.user || null;
+        //state.user = action.payload.data?.user || action.payload.user || null;
         state.token = action.payload.data?.token || action.payload.token || null;
         state.signup.message = action.payload.message || "Signup successful";
         state.signup.status = action.payload.status || 200;

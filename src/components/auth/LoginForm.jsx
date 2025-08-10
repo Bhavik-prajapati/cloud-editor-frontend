@@ -13,10 +13,14 @@ const LoginForm = () => {
     (state) => state.auth.login
   );
 
-  console.log(error,"errrrrrrrrr")
   const user = useSelector((state) => state.auth.user);
 
   const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [formErrors, setFormErrors] = useState({
     email: "",
     password: "",
   });
@@ -26,23 +30,54 @@ const LoginForm = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    // Clear field-specific error as user types
+    setFormErrors({
+      ...formErrors,
+      [e.target.name]: "",
+    });
+  };
+
+  const validateForm = () => {
+    let errors = {};
+    let valid = true;
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Enter a valid email";
+      valid = false;
+    }
+
+    // Password validation
+    if (!formData.password.trim()) {
+      errors.password = "Password is required";
+      valid = false;
+    } else if (formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+      valid = false;
+    }
+
+    setFormErrors(errors);
+    return valid;
   };
 
   const handleLogin = () => {
-    dispatch(loginUser(formData));
-      navigate("/dashboard");
-
+    if (validateForm()) {
+      dispatch(loginUser(formData));
+    }
   };
 
   const handleGoogleLogin = () => {
-    // TODO: implement Google login logic here
     console.log("Google login clicked");
   };
 
   useEffect(() => {
-    /* if (user) {
+    if (user) {
       navigate("/dashboard");
-    } */
+    }
   }, [user, navigate]);
 
   return (
@@ -64,7 +99,6 @@ const LoginForm = () => {
         borderRadius={3}
         bgcolor="background.paper"
       >
-        {/* Title */}
         <Typography
           variant="h4"
           mb={1}
@@ -83,25 +117,21 @@ const LoginForm = () => {
           Sign in to continue to Cloud Editor
         </Typography>
 
-
-        
-
-        {/* Validation warning if status is 400 */}
-          {status === 401 && message && (
+        {status === 401 && message && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             {message}
           </Alert>
         )}
 
-      {error && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {error.split(",").map((errMsg, index) => (
-            <div key={index}>{errMsg.trim()}</div>
-          ))}
-        </Alert>
-      )}
+        {error && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {error.split(",").map((errMsg, index) => (
+              <div key={index}>{errMsg.trim()}</div>
+            ))}
+          </Alert>
+        )}
 
-        {success && status=== 200 && message && (
+        {success && status === 200 && message && (
           <Alert severity="success" sx={{ mb: 2 }}>
             {message}
           </Alert>
@@ -117,6 +147,8 @@ const LoginForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          error={!!formErrors.email}
+          helperText={formErrors.email}
         />
 
         {/* Password */}
@@ -129,6 +161,8 @@ const LoginForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          error={!!formErrors.password}
+          helperText={formErrors.password}
         />
 
         {/* Login Button */}
@@ -174,7 +208,11 @@ const LoginForm = () => {
           Don’t have an account?{" "}
           <Link
             to="/signup"
-            style={{ textDecoration: "none", color: "#1976d2", fontWeight: "bold" }}
+            style={{
+              textDecoration: "none",
+              color: "#1976d2",
+              fontWeight: "bold",
+            }}
           >
             Sign Up
           </Link>

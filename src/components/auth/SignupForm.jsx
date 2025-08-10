@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../../features/auth/authSlice";
 import { Link, useNavigate } from "react-router-dom";
-
 import {
   TextField,
   Button,
@@ -22,11 +21,13 @@ const SignupForm = () => {
     (state) => state.auth.signup
   );
 
-  console.log(success)
-  console.log(status)
-  console.log(message)
-
   const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [formErrors, setFormErrors] = useState({
     name: "",
     email: "",
     password: "",
@@ -37,26 +38,64 @@ const SignupForm = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    // Clear error for that field
+    setFormErrors({
+      ...formErrors,
+      [e.target.name]: "",
+    });
+  };
+
+  const validateForm = () => {
+    let errors = {};
+    let valid = true;
+
+    // Name validation
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+      valid = false;
+    } else if (formData.name.trim().length < 3) {
+      errors.name = "Name must be at least 3 characters";
+      valid = false;
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Enter a valid email";
+      valid = false;
+    }
+
+    // Password validation
+    if (!formData.password.trim()) {
+      errors.password = "Password is required";
+      valid = false;
+    } else if (formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+      valid = false;
+    }
+
+    setFormErrors(errors);
+    return valid;
   };
 
   const handleSignup = () => {
-    dispatch(signupUser(formData));
+    if (validateForm()) {
+      dispatch(signupUser(formData));
+    }
   };
 
   const handleGoogleSignup = () => {
     console.log("Google signup clicked");
   };
 
-  // Optionally redirect on success (if you want)
-  // For example redirect to login page after successful signup
-  // or you can show a success message here and ask user to login manually
-  /*
-  useEffect(() => {
-    if (success) {
-      navigate("/login");
-    }
-  }, [success, navigate]);
-  */
+  // useEffect(() => {
+  //   if (success) {
+  //     navigate("/login");
+  //   }
+  // }, [success, navigate]);
 
   return (
     <Box
@@ -100,26 +139,26 @@ const SignupForm = () => {
 
         <Divider sx={{ mb: 3 }}>OR</Divider>
 
-        {/* Validation warning if status is 400 */}
+        {/* Server/API messages */}
         {status === 400 && message && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             {message}
           </Alert>
         )}
 
-        {success && status=== 200 && message && (
+        {success && status === 200 && message && (
           <Alert severity="success" sx={{ mb: 2 }}>
             {message}
           </Alert>
         )}
 
         {error && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {error.split(",").map((errMsg, index) => (
-            <div key={index}>{errMsg.trim()}</div>
-          ))}
-        </Alert>
-      )}
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {error.split(",").map((errMsg, index) => (
+              <div key={index}>{errMsg.trim()}</div>
+            ))}
+          </Alert>
+        )}
 
         <TextField
           fullWidth
@@ -129,6 +168,8 @@ const SignupForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          error={!!formErrors.name}
+          helperText={formErrors.name}
         />
 
         <TextField
@@ -140,6 +181,8 @@ const SignupForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          error={!!formErrors.email}
+          helperText={formErrors.email}
         />
 
         <TextField
@@ -151,6 +194,8 @@ const SignupForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          error={!!formErrors.password}
+          helperText={formErrors.password}
         />
 
         <Button
